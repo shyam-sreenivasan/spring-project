@@ -1,30 +1,36 @@
 package com.project.todoapp.model;
 
-import jakarta.persistence.Column;
+import org.hibernate.validator.constraints.Length;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 
 @Entity
 public class Todo {
     @Id
     @GeneratedValue(strategy=GenerationType.SEQUENCE)
     Integer id;
+
+    @NotBlank
+    @Length(min = 5, max=100, message="Name is not valid")
     String name;
     
-    @Column(columnDefinition="varchar(255) default 'CREATED'")
-    TodoStatus status;
+    @Pattern(regexp="CREATED|IN_PROGRESS|COMPLETED", message="Invalid status")
+    String status;
 
     public Todo() {
-        this.status = TodoStatus.CREATED;
+        this.status = TodoStatus.CREATED.name();
     }
     
-    public TodoStatus getStatus() {
+    public String getStatus() {
         return status;
     }
 
-    public void setStatus(TodoStatus status) {
+    public void setStatus(String status) {
         this.status = status;
     }
 

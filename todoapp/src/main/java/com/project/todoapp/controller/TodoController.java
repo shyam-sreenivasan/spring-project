@@ -1,6 +1,7 @@
 package com.project.todoapp.controller;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.http.ResponseEntity;
@@ -14,8 +15,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.project.todoapp.model.Todo;
-import com.project.todoapp.model.TodoStatus;
 import com.project.todoapp.repository.TodoRepository;
+
+import jakarta.validation.Valid;
 
 
 @RestController
@@ -33,7 +35,7 @@ public class TodoController {
     }
 
     @PostMapping("")
-    public ResponseEntity<Void> saveTodo(@RequestBody Todo entity) {
+    public ResponseEntity<Void> saveTodo(@Valid @RequestBody Todo entity) {
         Todo todo = new Todo();
         todo.setName(entity.getName());
         todoRepository.save(todo);
@@ -41,23 +43,15 @@ public class TodoController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Void> updateTodo(@PathVariable Integer id, @RequestBody Todo todoToUpdate) {
+    public ResponseEntity<Map<String, String>> updateTodo(@PathVariable Integer id, @Valid @RequestBody Todo todoToUpdate) {
         Optional<Todo> optionalTodo = todoRepository.findById(id);
         if (optionalTodo.isPresent()) {
             Todo todo = optionalTodo.get();
-            if (!todoToUpdate.getName().isEmpty()) {
-                todo.setName(todoToUpdate.getName());
-            }
-            TodoStatus statusToChange = todoToUpdate.getStatus();
-            for (TodoStatus status : TodoStatus.values()) {
-                if (status.equals(statusToChange)) {
-                    todo.setStatus(status);
-                }
-            }                
+            todo.setName(todoToUpdate.getName());
+            todo.setStatus(todoToUpdate.getStatus());
             todoRepository.save(todo);
             return ResponseEntity.ok().build();
         }
-        
         return ResponseEntity.notFound().build();
     }
     
